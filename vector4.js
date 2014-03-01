@@ -198,7 +198,7 @@ Vec4.length = function ( vec )
 		z = vec[ 2 ],
 		w = vec[ 3 ];
 
-	return Math.sqrt( x * x + y * y + z * z + w * w ):
+	return Math.sqrt( x * x + y * y + z * z + w * w );
 };
 
 

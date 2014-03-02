@@ -26,6 +26,7 @@ function App() {}
 App.prototype.CANVAS_ID = 'screen';
 App.prototype.CANVAS_WIDTH = 640;
 App.prototype.CANVAS_HEIGHT = 480;
+App.prototype.FPS = 1;
 
 
 //--------------------------------------------------------------------------------
@@ -49,7 +50,7 @@ App.prototype.tearDownGl = function ( gl )
 //--------------------------------------------------------------------------------
 App.prototype.loop = function ( gl )
 {
-	console.log( '*' );
+	//console.log( 'loop()' );
 
 	gl.clearColor( 0.0, 0.0, 1.0, 1.0 );
 	gl.clearDepth( 1.0 );
@@ -58,7 +59,7 @@ App.prototype.loop = function ( gl )
 	gl.flush();
 	
 	var that = this;
-	setTimeout( function () { that.loop( gl ); }, 1000 / 1 );
+	setTimeout( function () { that.loop( gl ); }, 1000 / this.FPS );
 }
 
 
@@ -78,15 +79,3 @@ App.prototype.run = function ()
 		}
 	}
 }
-
-
-//--------------------------------------------------------------------------------
-// ページのロードが完了したときに呼ばれます。
-//--------------------------------------------------------------------------------
-window.onload = function ()
-{
-	console.log( 'ページのロードが完了しました。' );
-
-	var app = new App();
-	app.run();
-};

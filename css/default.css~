@@ -1,0 +1,29 @@
+/********************************************************************************
+ 
+    default.css
+
+********************************************************************************/
+
+
+body
+{
+	margin: 0;
+	padding: 0;
+}
+
+
+div#screen_container
+{
+	margin: 32px;
+	padding: 0;
+}
+
+
+canvas#screen
+{
+	width: 640px;
+	height: 480px;
+	margin: 0;
+	padding: 0;
+	border: solid 1px #000000;
+}

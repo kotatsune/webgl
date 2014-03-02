@@ -155,6 +155,47 @@ App.prototype.tearDownGl = function ( gl )
 
 
 //--------------------------------------------------------------------------------
+// シーン 1 をレンダリングします。
+//--------------------------------------------------------------------------------
+App.prototype.renderScene1 = function ( gl )
+{
+	gl.enable( gl.CULL_FACE );
+	gl.frontFace( gl.CCW );
+
+	gl.bindBuffer( gl.ARRAY_BUFFER, this.vertices1 );
+
+	// 使用されない attribute はデッドストリップされ、getAttribLocation() で位置を取得できなくなります!!
+	
+	var positionLocation = gl.getAttribLocation( this.programObject1, 'position' );
+	gl.enableVertexAttribArray( positionLocation );
+	gl.vertexAttribPointer( positionLocation, 3, gl.FLOAT, false, 40, 0 );
+
+	//var normalLocation = gl.getAttribLocation( this.programObject1, 'normal' );
+	//gl.enableVertexAttribArray( normalLocation );
+	//gl.vertexAttribPointer( normalLocation, 3, gl.FLOAT, false, 40, 12 );
+
+	//var colorLocation = gl.getAttribLocation( this.programObject1, 'color' );
+	//gl.enableVertexAttribArray( colorLocation );
+	//gl.vertexAttribPointer( colorLocation, 4, gl.FLOAT, false, 40, 24 );
+
+	var mvpMatrix = Mat4.identity();
+	var mvpMatrixUniformLocation = gl.getUniformLocation( this.programObject1, 'mvpMatrix' );
+	gl.uniformMatrix4fv( mvpMatrixUniformLocation, false, mvpMatrix );
+
+	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.indices1 );
+
+	gl.enable( gl.BLEND );
+	gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
+	//gl.drawElements( gl.TRIANGLES, this.indices1.length, gl.UNSIGNED_SHORT, 0 );
+
+	gl.disable( gl.BLEND );
+	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
+	gl.bindBuffer( gl.ARRAY_BUFFER, null );
+};
+
+
+//--------------------------------------------------------------------------------
 // ループ
 //--------------------------------------------------------------------------------
 App.prototype.loop = function ( gl )
@@ -165,6 +206,8 @@ App.prototype.loop = function ( gl )
 	gl.clearDepth( 1.0 );
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
+	this.renderScene1( gl );
+
 	gl.flush();
 	
 	var that = this;
@@ -173,7 +216,7 @@ App.prototype.loop = function ( gl )
 
 
 //--------------------------------------------------------------------------------
-// ループ
+// 実行します。
 //--------------------------------------------------------------------------------
 App.prototype.run = function ()
 {

@@ -165,6 +165,7 @@ App.prototype.renderScene1 = function ( gl )
 	gl.bindBuffer( gl.ARRAY_BUFFER, this.vertices1 );
 
 	// 使用されない attribute はデッドストリップされ、getAttribLocation() で位置を取得できなくなります!!
+	// 位置の取得に失敗した場合は -1 が返されます。
 	
 	var positionLocation = gl.getAttribLocation( this.programObject1, 'position' );
 	gl.enableVertexAttribArray( positionLocation );
@@ -174,11 +175,17 @@ App.prototype.renderScene1 = function ( gl )
 	//gl.enableVertexAttribArray( normalLocation );
 	//gl.vertexAttribPointer( normalLocation, 3, gl.FLOAT, false, 40, 12 );
 
-	//var colorLocation = gl.getAttribLocation( this.programObject1, 'color' );
-	//gl.enableVertexAttribArray( colorLocation );
-	//gl.vertexAttribPointer( colorLocation, 4, gl.FLOAT, false, 40, 24 );
+	var colorLocation = gl.getAttribLocation( this.programObject1, 'color' );
+	gl.enableVertexAttribArray( colorLocation );
+	gl.vertexAttribPointer( colorLocation, 4, gl.FLOAT, false, 40, 24 );
 
-	var mvpMatrix = Mat4.identity();
+	var mMatrix = Mat4.identity();
+	var vMatrix = Mat4.lookAt( [ 0, 0, 10 ], [ 0, 0, 0 ], [ 0, 1, 0 ] );
+	var pMatrix = Mat4.perspective( 60, App.CANVAS_WIDTH / App.CANVAS_HEIGHT, 0.1, 100 );
+
+	var pvMatrix = Mat4.multiply( pMatrix, vMatrix );
+	var mvpMatrix = Mat4.multiply( pvMatrix, mMatrix );
+
 	var mvpMatrixUniformLocation = gl.getUniformLocation( this.programObject1, 'mvpMatrix' );
 	gl.uniformMatrix4fv( mvpMatrixUniformLocation, false, mvpMatrix );
 
@@ -187,7 +194,8 @@ App.prototype.renderScene1 = function ( gl )
 	gl.enable( gl.BLEND );
 	gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
-	//gl.drawElements( gl.TRIANGLES, this.indices1.length, gl.UNSIGNED_SHORT, 0 );
+	//gl.drawArrays(gl.TRIANGLES, 0, 3);
+	gl.drawElements( gl.TRIANGLES, Model.Box.INDICES.length, gl.UNSIGNED_SHORT, 0 );
 
 	gl.disable( gl.BLEND );
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
@@ -202,7 +210,7 @@ App.prototype.loop = function ( gl )
 {
 	//console.log( 'loop()' );
 
-	gl.clearColor( 0.0, 0.0, 1.0, 1.0 );
+	gl.clearColor( 0.1, 0.1, 0.1, 1.0 );
 	gl.clearDepth( 1.0 );
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 

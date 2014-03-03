@@ -245,6 +245,215 @@ Mat4.blend = function ( mat1, w1, mat2, w2, dest )
 	return dest;
 };
 
+
+
+//--------------------------------------------------------------------------------
+// 透視投影変換行列を作成します。
+//--------------------------------------------------------------------------------
+Mat4.frustum = function ( left, right, bottom, top, near, far, dest )
+{
+	if ( !dest )
+	{
+		dest = Mat4.create();
+	}
+
+	var rl = ( right - left   ),
+		tb = ( top   - bottom ),
+		fn = ( far   - near   );
+
+	dest[  0 ] = ( near * 2 ) / rl;
+	dest[  1 ] = 0;
+	dest[  2 ] = 0;
+	dest[  3 ] = 0;
+
+	dest[  4 ] = 0;
+	dest[  5 ] = ( near * 2 ) / tb;
+	dest[  6 ] = 0;
+	dest[  7 ] = 0;
+
+	dest[  8 ] =  ( right + left   ) / rl;
+	dest[  9 ] =  ( top   + bottom ) / tb;
+	dest[ 10 ] = -( far   + near   ) / fn;
+	dest[ 11 ] = -1;
+
+	dest[ 12 ] = 0;
+	dest[ 13 ] = 0;
+	dest[ 14 ] = -( far * near * 2 ) / fn;
+	dest[ 15 ] = 0;
+
+	return dest;
+};
+
+
+//--------------------------------------------------------------------------------
+// 
+//--------------------------------------------------------------------------------
+Mat4.perspective = function ( fovy, aspect, near, far, dest )
+{
+	var top	   = near * Math.tan( Math.PI * fovy / 360.0 ),
+		bottom = -top,
+		right  = top * aspect,
+		left   = -right;
+	
+	return Mat4.frustum( left, right, bottom, top, near, far, dest );
+};
+
+
+//--------------------------------------------------------------------------------
+// 平行投影変換行列を作成します。
+//--------------------------------------------------------------------------------
+Mat4.ortho = function ( left, right, bottom, top, near, far, dest )
+{
+	if ( !dest )
+	{
+		dest = Mat4.create();
+	}
+
+	var rl = ( right - left   ),
+		tb = ( top   - bottom ),
+		fn = ( far   - near   );
+
+	dest[  0 ] = 2 / rl;
+	dest[  1 ] = 0;
+	dest[  2 ] = 0;
+	dest[  3 ] = 0;
+
+	dest[  4 ] = 0;
+	dest[  5 ] = 2 / tb;
+	dest[  6 ] = 0;
+	dest[  7 ] = 0;
+
+	dest[  8 ] = 0;
+	dest[  9 ] = 0;
+	dest[ 10 ] = -2 / fn;
+	dest[ 11 ] = 0;
+
+	dest[ 12 ] = -( right + left   ) / rl;
+	dest[ 13 ] = -( top   + bottom ) / tb;
+	dest[ 14 ] = -( far   + near   ) / fn;
+	dest[ 15 ] = 1;
+
+	return dest;
+};
+
+
+//--------------------------------------------------------------------------------
+// ビュー変換行列を作成します。 
+//--------------------------------------------------------------------------------
+Mat4.lookAt = function ( eye, target, up, dest )
+{
+	if ( !dest )
+	{
+		dest = Mat4.create();
+	}
+
+	var x0, x1, x2, y0, y1, y2, z0, z1, z2, length, f;
+
+	var eyeX = eye[ 0 ],
+		eyeY = eye[ 1 ],
+		eyeZ = eye[ 2 ];
+
+	var upX = up[ 0 ],
+		upY = up[ 1 ],
+		upZ = up[ 2 ];
+
+	var targetX = target[ 0 ],
+		targetY = target[ 1 ],
+		targetZ = target[ 2 ];
+
+	if (   ( eyeX === targetX )
+		&& ( eyeY === targetY )
+		&& ( eyeZ === targetZ ) )
+	{
+		return Mat4.identity( dest );
+	}
+
+
+	// Z 軸
+	z0 = eyeX - target[ 0 ];
+	z1 = eyeY - target[ 1 ];
+	z2 = eyeZ - target[ 2 ];
+
+	length = Math.sqrt( z0 * z0 + z1 * z1 + z2 * z2 );
+	if ( !length )
+	{
+		z0 = 0;
+		z1 = 0;
+		z2 = 0;
+	}
+	else
+	{
+		f = 1 / length;
+		z0 *= f;
+		z1 *= f;
+		z2 *= f;
+	}
+
+	// X 軸
+	x0 = upY * z2 - upZ * z1;
+	x1 = upZ * z0 - upX * z2;
+	x2 = upX * z1 - upY * z0;
+
+	length = Math.sqrt( x0 * x0 + x1 * x1 + x2 * x2 );
+	if ( !length )
+	{
+		x0 = 0;
+		x1 = 0;
+		x2 = 0;
+	}
+	else
+	{
+		f = 1 / length;
+		x0 *= f;
+		x1 *= f;
+		x2 *= f;
+	}
+
+	// Y 軸
+	y0 = z1 * x2 - z2 * x1;
+	y1 = z2 * x0 - z0 * x2;
+	y2 = z0 * x1 - z1 * x0;
+
+	length = Math.sqrt( y0 * y0 + y1 * y1 + y2 * y2 );
+	if ( !length )
+	{
+		y0 = 0;
+		y1 = 0;
+		y2 = 0;
+	}
+	else
+	{
+		f = 1 / length;
+		y0 *= f;
+		y1 *= f;
+		y2 *= f;
+	}
+
+
+	dest[  0 ] = x0;
+	dest[  1 ] = y0;
+	dest[  2 ] = z0;
+	dest[  3 ] = 0;
+
+	dest[  4 ] = x1;
+	dest[  5 ] = y1;
+	dest[  6 ] = z1;
+	dest[  7 ] = 0;
+
+	dest[  8 ] = x2;
+	dest[  9 ] = y2;
+	dest[ 10 ] = z2;
+	dest[ 11 ] = 0;
+
+	dest[ 12 ] = -( x0 * eyeX + x1 * eyeY + x2 * eyeZ );
+	dest[ 13 ] = -( y0 * eyeX + y1 * eyeY + y2 * eyeZ );
+	dest[ 14 ] = -( z0 * eyeX + z1 * eyeY + z2 * eyeZ );
+	dest[ 15 ] = 1;
+
+	return dest;
+};
+
+
 //--------------------------------------------------------------------------------
 // 文字列表現に変換します。
 //--------------------------------------------------------------------------------

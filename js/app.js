@@ -17,7 +17,7 @@
 'use strict';
 
 
-function App() {}
+function App() {};
 
 
 //--------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ function App() {}
 App.CANVAS_ID = 'screen';
 App.CANVAS_WIDTH = 640;
 App.CANVAS_HEIGHT = 480;
-App.FPS = 1;
+App.FPS = 30;
 App.SCRIPT_TYPE_VERTEX_SHADER = "x-shader/x-vertex";
 App.SCRIPT_TYPE_FRAGMENT_SHADER = "x-shader/x-fragment";
 
@@ -137,11 +137,25 @@ App.prototype.createIBO = function ( gl, data )
 //--------------------------------------------------------------------------------
 App.prototype.setupGl = function ( gl )
 {
+	this.rad = 0.0;
+
 	this.vertexShader1 = this.createShader( gl, 'vertex-shader-1' );
 	this.fragmentShader1 = this.createShader( gl, 'fragment-shader-1' );
 	this.programObject1 = this.createProgramObject( gl, this.vertexShader1, this.fragmentShader1 );
 	this.vertices1 = this.createVBO( gl, Model.Box.VERTICES );
 	this.indices1 = this.createIBO( gl, Model.Box.INDICES );
+
+	// 【重要!!】
+	// canvas のサイズは css で指定してはいけません!!
+	// canvas のサイズを css で指定すると、
+	// 300px * 150px の canvas が css で指定したサイズに引き伸ばされることになります。
+	// (300px * 150px が canvas のデフォルト サイズらしい)
+	// そのため、
+	// gl.drawingBufferWidth と gl.drawingBufferHeight の値が canvas のサイズと一致せず、
+	// viewport 設定がなんか変ってことになってしまいます。
+	// なので、
+	// canvas のサイズは属性で直に指定しましょう。
+	gl.viewport( 0, 0, App.CANVAS_WIDTH, App.CANVAS_HEIGHT );
 };
 
 
@@ -159,6 +173,8 @@ App.prototype.tearDownGl = function ( gl )
 //--------------------------------------------------------------------------------
 App.prototype.renderScene1 = function ( gl )
 {
+	this.rad += 0.1;
+	
 	gl.enable( gl.CULL_FACE );
 	gl.frontFace( gl.CCW );
 
@@ -179,9 +195,10 @@ App.prototype.renderScene1 = function ( gl )
 	gl.enableVertexAttribArray( colorLocation );
 	gl.vertexAttribPointer( colorLocation, 4, gl.FLOAT, false, 40, 24 );
 
-	var mMatrix = Mat4.identity();
+	var mMatrix = Mat4.rotateX( this.rad );
 	var vMatrix = Mat4.lookAt( [ 0, 0, 10 ], [ 0, 0, 0 ], [ 0, 1, 0 ] );
-	var pMatrix = Mat4.perspective( 60, App.CANVAS_WIDTH / App.CANVAS_HEIGHT, 0.1, 100 );
+	var pMatrix = Mat4.perspective( 45, App.CANVAS_WIDTH / App.CANVAS_HEIGHT, 0.1, 100 );
+	//var pMatrix = Mat4.frustum( 0, 640, 0, 480, 0.1, 100 );
 
 	var pvMatrix = Mat4.multiply( pMatrix, vMatrix );
 	var mvpMatrix = Mat4.multiply( pvMatrix, mMatrix );

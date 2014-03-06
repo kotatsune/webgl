@@ -122,7 +122,7 @@ Vec3.subtract = function ( vec1, vec2, dest )
 //--------------------------------------------------------------------------------
 // スカラー倍します。
 //--------------------------------------------------------------------------------
-Vec3.scalarMultiply = function ( vec, a, dest )
+Vec3.multiplyScalar = function ( vec, a, dest )
 {
 	if ( !dest )
 	{

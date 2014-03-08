@@ -195,7 +195,7 @@ App.prototype.renderScene1 = function ( gl )
 	gl.enableVertexAttribArray( colorLocation );
 	gl.vertexAttribPointer( colorLocation, 4, gl.FLOAT, false, 40, 24 );
 
-	var mMatrix = Mat4.rotateX( this.rad );
+	var mMatrix = Mat4.rotationX( this.rad );
 	var vMatrix = Mat4.lookAt( [ 0, 0, 10 ], [ 0, 0, 0 ], [ 0, 1, 0 ] );
 	var pMatrix = Mat4.perspective( 45, App.CANVAS_WIDTH / App.CANVAS_HEIGHT, 0.1, 100 );
 	//var pMatrix = Mat4.frustum( 0, 640, 0, 480, 0.1, 100 );

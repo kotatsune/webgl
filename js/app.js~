@@ -176,7 +176,7 @@ App.prototype.renderScene1 = function ( gl )
 {
 	this.rad += 0.1;
 
-	this.t += 0.01;
+	this.t += 0.1;
 	if ( this.t >= 1.0 ) { this.t = 0.0; }
 	
 	gl.enable( gl.CULL_FACE );

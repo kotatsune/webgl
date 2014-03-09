@@ -178,7 +178,7 @@ Quat.yawPitchRollRotation = function ( yaw, pitch, roll, dest )
 		dest = Quat.create();
 	}
 
-	var PI_OVER_180 = Math.PI / 180;
+	var PI_OVER_180 = Math.PI / 180.0;
 
 	var y = yaw   * PI_OVER_180 * 0.5,
 		p = pitch * PI_OVER_180 * 0.5,

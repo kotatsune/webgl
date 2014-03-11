@@ -18,7 +18,7 @@ Quat.create = function ( quat )
 {
 	// ( w; x, y, z )
 	
-	var dest = new MatrixArray( 4 );
+	var dest = new Float32Array( 4 );
 
 	if ( quat )
 	{

@@ -1,6 +1,6 @@
 //================================================================================
 //
-//    objectPool.js
+//    float32ArrayPool.js
 //
 //================================================================================
 
@@ -11,22 +11,22 @@
 //--------------------------------------------------------------------------------
 // コンストラクタ
 //--------------------------------------------------------------------------------
-function ObjectPool( className )
+function Float32ArrayPool( numberOfElements )
 {
-	this.className = className;
+	this.numberOfElements = numberOfElements;
 	this.pool = [];
 	this.index = 0;
 }
 
 
 //--------------------------------------------------------------------------------
-// オブジェクトを借ります。
+// オブジェクトを取得します。
 //--------------------------------------------------------------------------------
-ObjectPool.prototype.borrow = function ()
+Float32ArrayPool.prototype.get = function ()
 {
 	if ( this.pool.length <= this.index )
 	{
-		this.pool.push( new this.className() );
+		this.pool.push( new Float32Array( this.numberOfElements ) );
 	}
 
 	return this.pool[ this.index++ ];
@@ -34,18 +34,18 @@ ObjectPool.prototype.borrow = function ()
 
 
 //--------------------------------------------------------------------------------
-// すべてのオブジェクトを返します。
+// オブジェクト インデックスをリセットします。
 //--------------------------------------------------------------------------------
-ObjectPool.prototype.returnAll = function ()
+Float32ArrayPool.prototype.reset = function ()
 {
 	this.index = 0;
 };
 
 
 //--------------------------------------------------------------------------------
-// オブジェクト数を取得します。
+// プールされているオブジェクトの数を取得します。
 //--------------------------------------------------------------------------------
-ObjectPool.prototype.count = function ()
+Float32ArrayPool.prototype.count = function ()
 {
 	return this.pool.length;
 };

@@ -18,7 +18,7 @@ Vec4.create = function ( vec )
 {
 	// ( x, y, z, w )
 	
-	var dest = new MatrixArray( 4 );
+	var dest = new Float32Array( 4 );
 
 	if ( vec )
 	{

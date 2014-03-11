@@ -1,6 +1,6 @@
 //================================================================================
 //
-//  test.js
+//    test.js
 //
 //================================================================================
 
@@ -17,7 +17,12 @@
 'use strict';
 
 
-function App() {};
+//--------------------------------------------------------------------------------
+// コンストラクタ
+//--------------------------------------------------------------------------------
+function App()
+{
+}
 
 
 //--------------------------------------------------------------------------------
@@ -137,6 +142,7 @@ App.prototype.createIBO = function ( gl, data )
 //--------------------------------------------------------------------------------
 App.prototype.setupGl = function ( gl )
 {
+	this.mat4Pool = new Float32ArrayPool( 16 );
 	this.rad = 0.0;
 	this.t = 0.0;
 
@@ -174,6 +180,9 @@ App.prototype.tearDownGl = function ( gl )
 //--------------------------------------------------------------------------------
 App.prototype.renderScene1 = function ( gl )
 {
+	var matPool = this.mat4Pool;
+	matPool.reset();
+
 	this.rad += 0.1;
 
 	this.t += 0.01;
@@ -204,15 +213,15 @@ App.prototype.renderScene1 = function ( gl )
 	var axis2 = Vec3.normalize( Vec3.create( [ 0, 1, 0 ] ) );
 	var quat2 = Quat.rotation( axis2, Math.PI * 0.5 ); 
 	var quat = Quat.slerp( quat1, quat2, this.t );
-	var mMatrix = Quat.toMat4( quat );
+	var mMatrix = Quat.toMat4( quat, matPool.get() );
 
 	//var mMatrix = Mat4.rotationX( this.rad );
-	var vMatrix = Mat4.lookAt( [ 0, 0, 10 ], [ 0, 0, 0 ], [ 0, 1, 0 ] );
-	var pMatrix = Mat4.perspective( 45, App.CANVAS_WIDTH / App.CANVAS_HEIGHT, 0.1, 100 );
+	var vMatrix = Mat4.lookAt( [ 0, 0, 10 ], [ 0, 0, 0 ], [ 0, 1, 0 ], matPool.get() );
+	var pMatrix = Mat4.perspective( 45, App.CANVAS_WIDTH / App.CANVAS_HEIGHT, 0.1, 100, matPool.get() );
 	//var pMatrix = Mat4.frustum( 0, 640, 0, 480, 0.1, 100 );
 
-	var pvMatrix = Mat4.multiply( pMatrix, vMatrix );
-	var mvpMatrix = Mat4.multiply( pvMatrix, mMatrix );
+	var pvMatrix = Mat4.multiply( pMatrix, vMatrix, matPool.get() );
+	var mvpMatrix = Mat4.multiply( pvMatrix, mMatrix, matPool.get() );
 
 	var mvpMatrixUniformLocation = gl.getUniformLocation( this.programObject1, 'mvpMatrix' );
 	gl.uniformMatrix4fv( mvpMatrixUniformLocation, false, mvpMatrix );

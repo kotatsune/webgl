@@ -21,7 +21,7 @@ Mat4.create = function ( mat )
 	// |  a02  a06  a10  a14  |
 	// |  a03  a07  a11  a15  |
 	
-	var dest = new MatrixArray( 16 );
+	var dest = new Float32Array( 16 );
 
 	if ( mat )
 	{

@@ -18,7 +18,7 @@ Vec3.create = function ( vec )
 {
 	// ( x, y, z )
 	
-	var dest = new MatrixArray( 3 );
+	var dest = new Float32Array( 3 );
 
 	if ( vec )
 	{

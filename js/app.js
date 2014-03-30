@@ -221,7 +221,7 @@ App.prototype.renderScene1 = function ( gl )
 	var matPool = this.mat4Pool;
 	matPool.reset();
 
-	this.rad += 0.05;
+	this.rad += 0.01;
 
 	this.t += 0.01;
 	if ( this.t >= 1.0 ) { this.t = 0.0; }
@@ -257,12 +257,19 @@ App.prototype.renderScene1 = function ( gl )
 	//var quat = Quat.slerp( quat1, quat2, this.t );
 	//var mMatrix = Quat.toMat4( quat, matPool.get() );
 
-	var axis = Vec3.normalize( [ 1, 1, 1 ] );
+	var axis = Vec3.normalize( [ 0, 1, 0 ] );
 	var quat = Quat.rotation( axis, this.rad );
 	var mMatrix = Quat.toMat4( quat );
 
-	var vMatrix = Mat4.lookAt( [ 0, 0, 10 ], [ 0, 0, 0 ], [ 0, 1, 0 ], matPool.get() );
-	var pMatrix = Mat4.perspective( 45, App.CANVAS_WIDTH / App.CANVAS_HEIGHT, 0.1, 100, matPool.get() );
+	var s = App.CANVAS_WIDTH / App.CANVAS_HEIGHT;
+	var fovy = 30.0;
+	var d = 1.0 * s + 1.0 / Math.tan( Math.PI * fovy / 360.0 );
+
+	var scaleMatrix = Mat4.scale( [ s, 1, s ] );
+	mMatrix = Mat4.multiply( mMatrix, scaleMatrix, matPool.get() );
+
+	var vMatrix = Mat4.lookAt( [ 0, 0, d ], [ 0, 0, 0 ], [ 0, 1, 0 ], matPool.get() );
+	var pMatrix = Mat4.perspective( fovy, App.CANVAS_WIDTH / App.CANVAS_HEIGHT, 0.1, 100, matPool.get() );
 	//var pMatrix = Mat4.frustum( 0, 640, 0, 480, 0.1, 100 );
 
 	var pvMatrix = Mat4.multiply( pMatrix, vMatrix, matPool.get() );

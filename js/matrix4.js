@@ -486,7 +486,7 @@ Mat4.frustum = function ( left, right, bottom, top, near, far, dest )
 //--------------------------------------------------------------------------------
 Mat4.perspective = function ( fovy, aspect, near, far, dest )
 {
-	var top	   = near * Math.tan( fovy * Math.PI / 360.0 ),
+	var top	   = near * Math.tan( Math.PI * fovy / 360.0 ),
 		bottom = -top,
 		right  = top * aspect,
 		left   = -right;

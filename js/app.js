@@ -138,6 +138,43 @@ App.prototype.createIBO = function ( gl, data )
 
 
 //--------------------------------------------------------------------------------
+// テクスチャを作成します。
+//--------------------------------------------------------------------------------
+App.prototype.createTexture = function ( gl, name, source, callback )
+{
+	var asyncResult = { 'textureId' : null, 'loaded' : false, 'name' : name, 'source' : source };
+
+	{
+		var image = new Image();
+
+		image.onload = function ()
+		{
+			var textureId = gl.createTexture();
+			gl.activeTexture( gl.TEXTURE0 );
+			gl.bindTexture( gl.TEXTURE_2D, textureId );
+			gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image );
+			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR );
+			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR );
+			gl.generateMipmap( gl.TEXTURE_2D );
+			gl.bindTexture( gl.TEXTURE_2D, null );
+
+			asyncResult.textureId = textureId;
+			asyncResult.loaded = true;
+
+			if ( callback )
+			{
+				callback( asyncResult );
+			}
+		};
+
+		image.src = source;
+	}
+
+	return asyncResult;
+};
+
+
+//--------------------------------------------------------------------------------
 // WebGL の初期化を行います。
 //--------------------------------------------------------------------------------
 App.prototype.setupGl = function ( gl )
@@ -151,6 +188,7 @@ App.prototype.setupGl = function ( gl )
 	this.programObject1 = this.createProgramObject( gl, this.vertexShader1, this.fragmentShader1 );
 	this.vertices1 = this.createVBO( gl, Model.Box.VERTICES );
 	this.indices1 = this.createIBO( gl, Model.Box.INDICES );
+	this.texture1 = this.createTexture( gl, 'miku.png', '/image/miku.png', function ( ar ) { console.log( ar.name + ' has been created.' ); } );
 
 	// 【重要!!】
 	// canvas のサイズは css で指定してはいけません!!
@@ -183,7 +221,7 @@ App.prototype.renderScene1 = function ( gl )
 	var matPool = this.mat4Pool;
 	matPool.reset();
 
-	this.rad += 0.1;
+	this.rad += 0.05;
 
 	this.t += 0.01;
 	if ( this.t >= 1.0 ) { this.t = 0.0; }
@@ -193,29 +231,36 @@ App.prototype.renderScene1 = function ( gl )
 
 	gl.bindBuffer( gl.ARRAY_BUFFER, this.vertices1 );
 
-	// 使用されない attribute はデッドストリップされ、getAttribLocation() で位置を取得できなくなります!!
+	// 使用されない attribute 等はデッドストリップされ、getAttribLocation() で位置を取得できなくなります!!
 	// 位置の取得に失敗した場合は -1 が返されます。
 	
 	var positionLocation = gl.getAttribLocation( this.programObject1, 'position' );
 	gl.enableVertexAttribArray( positionLocation );
-	gl.vertexAttribPointer( positionLocation, 3, gl.FLOAT, false, 40, 0 );
+	gl.vertexAttribPointer( positionLocation, 3, gl.FLOAT, false, 48, 0 );
 
 	//var normalLocation = gl.getAttribLocation( this.programObject1, 'normal' );
 	//gl.enableVertexAttribArray( normalLocation );
-	//gl.vertexAttribPointer( normalLocation, 3, gl.FLOAT, false, 40, 12 );
+	//gl.vertexAttribPointer( normalLocation, 3, gl.FLOAT, false, 48, 12 );
 
 	var colorLocation = gl.getAttribLocation( this.programObject1, 'color' );
 	gl.enableVertexAttribArray( colorLocation );
-	gl.vertexAttribPointer( colorLocation, 4, gl.FLOAT, false, 40, 24 );
+	gl.vertexAttribPointer( colorLocation, 4, gl.FLOAT, false, 48, 24 );
 
-	var axis1 = Vec3.normalize( Vec3.create( [ 1, 0, 0 ] ) );
-	var quat1 = Quat.rotation( axis1, Math.PI * 0.5 ); 
-	var axis2 = Vec3.normalize( Vec3.create( [ 0, 1, 0 ] ) );
-	var quat2 = Quat.rotation( axis2, Math.PI * 0.5 ); 
-	var quat = Quat.slerp( quat1, quat2, this.t );
-	var mMatrix = Quat.toMat4( quat, matPool.get() );
+	var uvLocation = gl.getAttribLocation( this.programObject1, 'uv' );
+	gl.enableVertexAttribArray( uvLocation );
+	gl.vertexAttribPointer( uvLocation, 2, gl.FLOAT, false, 48, 40 );
 
-	//var mMatrix = Mat4.rotationX( this.rad );
+	//var axis1 = Vec3.normalize( Vec3.create( [ 1, 0, 0 ] ) );
+	//var quat1 = Quat.rotation( axis1, Math.PI * 0.5 ); 
+	//var axis2 = Vec3.normalize( Vec3.create( [ 0, 1, 0 ] ) );
+	//var quat2 = Quat.rotation( axis2, Math.PI * 0.5 ); 
+	//var quat = Quat.slerp( quat1, quat2, this.t );
+	//var mMatrix = Quat.toMat4( quat, matPool.get() );
+
+	var axis = Vec3.normalize( [ 1, 1, 1 ] );
+	var quat = Quat.rotation( axis, this.rad );
+	var mMatrix = Quat.toMat4( quat );
+
 	var vMatrix = Mat4.lookAt( [ 0, 0, 10 ], [ 0, 0, 0 ], [ 0, 1, 0 ], matPool.get() );
 	var pMatrix = Mat4.perspective( 45, App.CANVAS_WIDTH / App.CANVAS_HEIGHT, 0.1, 100, matPool.get() );
 	//var pMatrix = Mat4.frustum( 0, 640, 0, 480, 0.1, 100 );
@@ -226,10 +271,24 @@ App.prototype.renderScene1 = function ( gl )
 	var mvpMatrixUniformLocation = gl.getUniformLocation( this.programObject1, 'mvpMatrix' );
 	gl.uniformMatrix4fv( mvpMatrixUniformLocation, false, mvpMatrix );
 
+	var texture0Location = gl.getUniformLocation( this.programObject1, 'texture0' );
+	gl.uniform1i( texture0Location, 0 );
+
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.indices1 );
 
 	gl.enable( gl.BLEND );
 	gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
+	if ( this.texture1.textureId )
+	{
+		gl.activeTexture( gl.TEXTURE0 );
+		gl.bindTexture( gl.TEXTURE_2D, this.texture1.textureId );
+	}
+	else
+	{
+		gl.activeTexture( gl.TEXTURE0 );
+		gl.bindTexture( gl.TEXTURE_2D, null );
+	}
 
 	//gl.drawArrays(gl.TRIANGLES, 0, 3);
 	gl.drawElements( gl.TRIANGLES, Model.Box.INDICES.length, gl.UNSIGNED_SHORT, 0 );

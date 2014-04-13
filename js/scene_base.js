@@ -29,7 +29,7 @@ SceneBase.prototype.getName = function ()
 //--------------------------------------------------------------------------------
 // シーンが作成されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneBase.prototype.onCreate = function ()
+SceneBase.prototype.onCreate = function ( gl )
 {
 };
 
@@ -37,7 +37,7 @@ SceneBase.prototype.onCreate = function ()
 //--------------------------------------------------------------------------------
 // シーンが破棄されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneBase.prototype.onDestroy = function ()
+SceneBase.prototype.onDestroy = function ( gl )
 {
 };
 
@@ -45,7 +45,7 @@ SceneBase.prototype.onDestroy = function ()
 //--------------------------------------------------------------------------------
 // シーンが開始されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneBase.prototype.onResume = function ()
+SceneBase.prototype.onResume = function ( gl )
 {
 };
 
@@ -53,7 +53,7 @@ SceneBase.prototype.onResume = function ()
 //--------------------------------------------------------------------------------
 // シーンが停止されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneBase.prototype.onPause = function ()
+SceneBase.prototype.onPause = function ( gl )
 {
 };
 
@@ -61,7 +61,7 @@ SceneBase.prototype.onPause = function ()
 //--------------------------------------------------------------------------------
 // シーンが更新されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneBase.prototype.onUpdate = function ()
+SceneBase.prototype.onUpdate = function ( gl, sceneManager )
 {
 };
 
@@ -69,7 +69,7 @@ SceneBase.prototype.onUpdate = function ()
 //--------------------------------------------------------------------------------
 // シーンが描画されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneBase.prototype.onRender = function ()
+SceneBase.prototype.onRender = function ( gl )
 {
 };
 

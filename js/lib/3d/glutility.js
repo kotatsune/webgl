@@ -67,18 +67,29 @@ GLUT.createShader = function ( gl, id )
 
 
 //--------------------------------------------------------------------------------
-// プログラム オブジェクトを作成します。
+// シェーダーを削除します。
 //--------------------------------------------------------------------------------
-GLUT.createProgramObject = function ( gl, vs, fs )
+GLUT.deleteShader = function ( gl, shader )
+{
+	gl.deleteShader( shader );
+};
+
+
+//--------------------------------------------------------------------------------
+// プログラムを作成します。
+//--------------------------------------------------------------------------------
+GLUT.createProgram = function ( gl, vertexShader, fragmentShader )
 {
 	var program = gl.createProgram();
-	gl.attachShader( program, vs );
-	gl.attachShader( program, fs );
+	gl.attachShader( program, vertexShader );
+	gl.attachShader( program, fragmentShader );
 	gl.linkProgram( program );
 	
 	if ( !gl.getProgramParameter( program, gl.LINK_STATUS ) )
 	{
 		alert( gl.getProgramInfoLog( program ) );
+
+		gl.deleteProgram( program );
 
 		return null;
 	}
@@ -90,32 +101,59 @@ GLUT.createProgramObject = function ( gl, vs, fs )
 
 
 //--------------------------------------------------------------------------------
-// VBO を作成します。
+// プログラムを削除します。
 //--------------------------------------------------------------------------------
-GLUT.createVBO = function ( gl, data )
+GLUT.deleteProgram = function ( gl, program )
 {
-	// gl.ARRAY_BUFFER と gl.ELEMENT_ARRAY_BUFFER の違いに注意!!
-	var vbo = gl.createBuffer();
-	gl.bindBuffer( gl.ARRAY_BUFFER, vbo );
-	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( data ), gl.STATIC_DRAW );
-	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-	
-	return vbo;
+	gl.deleteProgram( program );
 };
 
 
 //--------------------------------------------------------------------------------
-// IBO を作成します。
+// 頂点バッファを作成します。
 //--------------------------------------------------------------------------------
-GLUT.createIBO = function ( gl, data )
+GLUT.createVertexBuffer = function ( gl, data )
 {
 	// gl.ARRAY_BUFFER と gl.ELEMENT_ARRAY_BUFFER の違いに注意!!
-	var ibo = gl.createBuffer();
-	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, ibo );
+	var vertexBuffer = gl.createBuffer();
+	gl.bindBuffer( gl.ARRAY_BUFFER, vertexBuffer );
+	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( data ), gl.STATIC_DRAW );
+	gl.bindBuffer( gl.ARRAY_BUFFER, null );
+	
+	return vertexBuffer;
+};
+
+
+//--------------------------------------------------------------------------------
+// 頂点バッファを削除します。
+//--------------------------------------------------------------------------------
+GLUT.deleteVertexBuffer = function ( gl, vertexBuffer )
+{
+	gl.deleteBuffer( vertexBuffer );
+};
+
+
+//--------------------------------------------------------------------------------
+// インデックス バッファを作成します。
+//--------------------------------------------------------------------------------
+GLUT.createIndexBuffer = function ( gl, data )
+{
+	// gl.ARRAY_BUFFER と gl.ELEMENT_ARRAY_BUFFER の違いに注意!!
+	var indexBuffer = gl.createBuffer();
+	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, indexBuffer );
 	gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Int16Array( data ), gl.STATIC_DRAW );
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
 	
-	return ibo;
+	return indexBuffer;
+};
+
+
+//--------------------------------------------------------------------------------
+// インデックス バッファを削除します。
+//--------------------------------------------------------------------------------
+GLUT.deleteIndexBuffer = function ( gl, indexBuffer )
+{
+	gl.deleteBuffer( indexBuffer );
 };
 
 
@@ -153,4 +191,13 @@ GLUT.createTexture = function ( gl, name, source, callback )
 	}
 
 	return asyncResult;
+};
+
+
+//--------------------------------------------------------------------------------
+// テクスチャを削除します。
+//--------------------------------------------------------------------------------
+GLUT.deleteTexture = function ( gl, texture )
+{
+	gl.deleteTexture( texture );
 };

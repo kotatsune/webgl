@@ -1,6 +1,6 @@
 //================================================================================
 //
-//    scene_title.js
+//    scene_title2.js
 //
 //================================================================================
 
@@ -11,54 +11,62 @@
 //--------------------------------------------------------------------------------
 // コンストラクタ
 //--------------------------------------------------------------------------------
-function SceneTitle()
+function SceneTitle2()
 {
 	//SceneBase.apply( this, arguments ); 
-	SceneBase.apply( this, [ 'Title' ] ); 
+	SceneBase.apply( this, [ 'Title2' ] ); 
 }
 
-SceneTitle.prototype = Object.create( SceneBase.prototype );
-SceneTitle.prototype.constructor = SceneTitle;
+SceneTitle2.prototype = Object.create( SceneBase.prototype );
+SceneTitle2.prototype.constructor = SceneTitle2;
 
 
 //--------------------------------------------------------------------------------
 // シーンが作成されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle.prototype.onCreate = function ( gl )
+SceneTitle2.prototype.onCreate = function ( gl )
 {
 	this.mat4Pool = new Float32ArrayPool( 16 );
 	this.rad = 0.0;
 	this.t = 0.0;
 
-	this.vertexShader1 = GLUT.createShader( gl, 'vertex-shader-1' );
-	this.fragmentShader1 = GLUT.createShader( gl, 'fragment-shader-1' );
-	this.programObject1 = GLUT.createProgramObject( gl, this.vertexShader1, this.fragmentShader1 );
-	this.vertices1 = GLUT.createVBO( gl, Model.Box.VERTICES );
-	this.indices1 = GLUT.createIBO( gl, Model.Box.INDICES );
-	this.texture1 = GLUT.createTexture( gl, 'miku.png', '/image/miku.png', function ( ar ) { console.log( ar.name + ' has been created.' ); } );
+	var vertexShader1 = GLUT.createShader( gl, 'vertex-shader-1' );
+	var fragmentShader1 = GLUT.createShader( gl, 'fragment-shader-1' );
+	this.program1 = GLUT.createProgram( gl, vertexShader1, fragmentShader1 );
+	GLUT.deleteShader( gl, vertexShader1 );
+	GLUT.deleteShader( gl, fragmentShader1 );
+
+	this.vertices1 = GLUT.createVertexBuffer( gl, Model.Box.VERTICES );
+	this.indices1 = GLUT.createIndexBuffer( gl, Model.Box.INDICES );
+	this.texture1 = GLUT.createTexture( gl, 'miku2.png', '/image/miku2.png', function ( ar ) { console.log( ar.name + ' has been created.' ); } );
 };
 
 
 //--------------------------------------------------------------------------------
 // シーンが破棄されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle.prototype.onDestroy = function ( gl )
+SceneTitle2.prototype.onDestroy = function ( gl )
 {
+	GLUT.deleteProgram( gl, this.program1 );
+	GLUT.deleteVertexBuffer( gl, this.vertices1 );
+	GLUT.deleteIndexBuffer( gl, this.indices1 );
+	GLUT.deleteTexture( gl, this.texture1.textureId );
 };
 
 
 //--------------------------------------------------------------------------------
 // シーンが再開されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle.prototype.onResume = function ( gl )
+SceneTitle2.prototype.onResume = function ( gl )
 {
+	this.count = 100;
 };
 
 
 //--------------------------------------------------------------------------------
 // シーンが停止されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle.prototype.onPause = function ( gl )
+SceneTitle2.prototype.onPause = function ( gl )
 {
 };
 
@@ -66,45 +74,50 @@ SceneTitle.prototype.onPause = function ( gl )
 //--------------------------------------------------------------------------------
 // シーンが更新されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle.prototype.onUpdate = function ( gl )
+SceneTitle2.prototype.onUpdate = function ( gl, sceneManager )
 {
+	this.rad += 0.01;
+
+	this.t += 0.01;
+	if ( this.t >= 1.0 ) { this.t = 0.0; }
+
+	if ( --this.count == 0 )
+	{
+		sceneManager.pop();
+	}
 };
 
 
 //--------------------------------------------------------------------------------
 // シーンが描画されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle.prototype.onRender = function ( gl )
+SceneTitle2.prototype.onRender = function ( gl )
 {
 	var matPool = this.mat4Pool;
 	matPool.reset();
 
-	this.rad += 0.01;
 
-	this.t += 0.01;
-	if ( this.t >= 1.0 ) { this.t = 0.0; }
-	
-	gl.enable( gl.CULL_FACE );
-	gl.frontFace( gl.CCW );
-
+	gl.useProgram( this.program1 );
 	gl.bindBuffer( gl.ARRAY_BUFFER, this.vertices1 );
+	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.indices1 );
 
+	
 	// 使用されない attribute 等はデッドストリップされ、getAttribLocation() で位置を取得できなくなります!!
 	// 位置の取得に失敗した場合は -1 が返されます。
 	
-	var positionLocation = gl.getAttribLocation( this.programObject1, 'position' );
+	var positionLocation = gl.getAttribLocation( this.program1, 'position' );
 	gl.enableVertexAttribArray( positionLocation );
 	gl.vertexAttribPointer( positionLocation, 3, gl.FLOAT, false, 48, 0 );
 
-	//var normalLocation = gl.getAttribLocation( this.programObject1, 'normal' );
+	//var normalLocation = gl.getAttribLocation( this.program1, 'normal' );
 	//gl.enableVertexAttribArray( normalLocation );
 	//gl.vertexAttribPointer( normalLocation, 3, gl.FLOAT, false, 48, 12 );
 
-	var colorLocation = gl.getAttribLocation( this.programObject1, 'color' );
+	var colorLocation = gl.getAttribLocation( this.program1, 'color' );
 	gl.enableVertexAttribArray( colorLocation );
 	gl.vertexAttribPointer( colorLocation, 4, gl.FLOAT, false, 48, 24 );
 
-	var uvLocation = gl.getAttribLocation( this.programObject1, 'uv' );
+	var uvLocation = gl.getAttribLocation( this.program1, 'uv' );
 	gl.enableVertexAttribArray( uvLocation );
 	gl.vertexAttribPointer( uvLocation, 2, gl.FLOAT, false, 48, 40 );
 
@@ -119,7 +132,7 @@ SceneTitle.prototype.onRender = function ( gl )
 	var quat = Quat.rotation( axis, this.rad );
 	var mMatrix = Quat.toMat4( quat );
 
-	var s = App.CANVAS_WIDTH / App.CANVAS_HEIGHT;
+	var s = Common.CANVAS_WIDTH / Common.CANVAS_HEIGHT;
 	var fovy = 30.0;
 	var d = 1.0 * s + 1.0 / Math.tan( Math.PI * fovy / 360.0 );
 
@@ -127,19 +140,21 @@ SceneTitle.prototype.onRender = function ( gl )
 	mMatrix = Mat4.multiply( mMatrix, scaleMatrix, matPool.get() );
 
 	var vMatrix = Mat4.lookAt( [ 0, 0, d ], [ 0, 0, 0 ], [ 0, 1, 0 ], matPool.get() );
-	var pMatrix = Mat4.perspective( fovy, App.CANVAS_WIDTH / App.CANVAS_HEIGHT, 0.1, 100, matPool.get() );
+	var pMatrix = Mat4.perspective( fovy, Common.CANVAS_WIDTH / Common.CANVAS_HEIGHT, 0.1, 100, matPool.get() );
 	//var pMatrix = Mat4.frustum( 0, 640, 0, 480, 0.1, 100 );
 
 	var pvMatrix = Mat4.multiply( pMatrix, vMatrix, matPool.get() );
 	var mvpMatrix = Mat4.multiply( pvMatrix, mMatrix, matPool.get() );
 
-	var mvpMatrixUniformLocation = gl.getUniformLocation( this.programObject1, 'mvpMatrix' );
+	var mvpMatrixUniformLocation = gl.getUniformLocation( this.program1, 'mvpMatrix' );
 	gl.uniformMatrix4fv( mvpMatrixUniformLocation, false, mvpMatrix );
 
-	var texture0Location = gl.getUniformLocation( this.programObject1, 'texture0' );
+	var texture0Location = gl.getUniformLocation( this.program1, 'texture0' );
 	gl.uniform1i( texture0Location, 0 );
 
-	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.indices1 );
+
+	gl.enable( gl.CULL_FACE );
+	gl.frontFace( gl.CCW );
 
 	gl.enable( gl.BLEND );
 	gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );

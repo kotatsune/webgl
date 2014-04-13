@@ -26,15 +26,6 @@ function App()
 
 
 //--------------------------------------------------------------------------------
-// 定数
-//--------------------------------------------------------------------------------
-App.CANVAS_ID = 'screen';
-App.CANVAS_WIDTH = 640;
-App.CANVAS_HEIGHT = 480;
-App.FPS = 30;
-
-
-//--------------------------------------------------------------------------------
 // WebGL 初期化を行います。
 //--------------------------------------------------------------------------------
 App.prototype.setupGl = function ( gl )
@@ -49,7 +40,7 @@ App.prototype.setupGl = function ( gl )
 	// viewport 設定がなんか変ってことになってしまいます。
 	// なので、
 	// canvas のサイズは属性で直に指定しましょう。
-	gl.viewport( 0, 0, App.CANVAS_WIDTH, App.CANVAS_HEIGHT );
+	gl.viewport( 0, 0, Common.CANVAS_WIDTH, Common.CANVAS_HEIGHT );
 
 };
 
@@ -68,15 +59,12 @@ App.prototype.tearDownGl = function ( gl )
 //--------------------------------------------------------------------------------
 App.prototype.initialize = function ( gl )
 {
-	this.setupGl( gl );
-
 	this.running = true;
 
-	var scene = new SceneTitle();
-	scene.onCreate( gl );
+	this.setupGl( gl );
 
-	this.sceneStack = [];
-	this.sceneStack.push( scene );
+	this.sceneManager = new SceneManager();
+	this.sceneManager.push( new SceneTitle1() );
 };
 
 
@@ -85,11 +73,7 @@ App.prototype.initialize = function ( gl )
 //--------------------------------------------------------------------------------
 App.prototype.finalize = function ( gl )
 {
-	while ( this.sceneStack.length > 0 )
-	{
-		var scene = this.sceneStack.pop();
-		scene.onDestroy( gl );
-	}
+	this.sceneManager.finalize();
 
 	this.tearDownGl( gl );
 };
@@ -106,24 +90,12 @@ App.prototype.loop = function ( gl )
 		gl.clearDepth( 1.0 );
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
-		var scene = this.sceneStack[ this.sceneStack.length - 1 ];
-		if ( scene )
-		{
-			var commands = scene.onUpdate( gl );
-			scene.onRender( gl );
-
-			if ( commands )
-			{
-				for ( var i = 0; i < commands.length; ++i )
-				{
-				}
-			}
-		}
+		this.sceneManager.control( gl );
 
 		gl.flush();
 	
 		var that = this;
-		setTimeout( function () { that.loop( gl ); }, 1000 / App.FPS );
+		setTimeout( function () { that.loop( gl ); }, 1000 / Common.FPS );
 	}
 	else
 	{
@@ -137,7 +109,7 @@ App.prototype.loop = function ( gl )
 //--------------------------------------------------------------------------------
 App.prototype.run = function ()
 {
-	var canvas = document.getElementById( App.CANVAS_ID );
+	var canvas = document.getElementById( Common.CANVAS_ID );
 	if ( canvas )
 	{
 		var gl = canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' );

@@ -1,6 +1,6 @@
 //================================================================================
 //
-//    scene_title1.js
+//    SceneTitle1.js
 //
 //================================================================================
 
@@ -14,7 +14,7 @@
 function SceneTitle1()
 {
 	//SceneBase.apply( this, arguments ); 
-	SceneBase.apply( this, [ 'Title1' ] ); 
+	SceneBase.apply( this, [ 'Title1', false ] ); 
 }
 
 SceneTitle1.prototype = Object.create( SceneBase.prototype );
@@ -24,7 +24,7 @@ SceneTitle1.prototype.constructor = SceneTitle1;
 //--------------------------------------------------------------------------------
 // シーンが作成されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle1.prototype.onCreate = function ( gl )
+SceneTitle1.prototype.onCreate = function ( gl, app )
 {
 	this.mat4Pool = new Float32ArrayPool( 16 );
 	this.rad = 0.0;
@@ -38,14 +38,14 @@ SceneTitle1.prototype.onCreate = function ( gl )
 
 	this.vertices1 = GLUT.createVertexBuffer( gl, Model.Box.VERTICES );
 	this.indices1 = GLUT.createIndexBuffer( gl, Model.Box.INDICES );
-	this.texture1 = GLUT.createTexture( gl, 'miku.png', '/image/miku.png', function ( ar ) { console.log( ar.name + ' has been created.' ); } );
+	this.texture1 = GLUT.createTexture( gl, 'Miku.png', '/Image/Miku.png', function ( ar ) { console.log( ar.name + ' has been created.' ); } );
 };
 
 
 //--------------------------------------------------------------------------------
 // シーンが破棄されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle1.prototype.onDestroy = function ( gl )
+SceneTitle1.prototype.onDestroy = function ( gl, app )
 {
 	GLUT.deleteProgram( gl, this.program1 );
 	GLUT.deleteVertexBuffer( gl, this.vertices1 );
@@ -57,7 +57,7 @@ SceneTitle1.prototype.onDestroy = function ( gl )
 //--------------------------------------------------------------------------------
 // シーンが再開されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle1.prototype.onResume = function ( gl )
+SceneTitle1.prototype.onResume = function ( gl, app )
 {
 	this.count = 100;
 };
@@ -66,7 +66,7 @@ SceneTitle1.prototype.onResume = function ( gl )
 //--------------------------------------------------------------------------------
 // シーンが停止されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle1.prototype.onPause = function ( gl )
+SceneTitle1.prototype.onPause = function ( gl, app )
 {
 };
 
@@ -74,7 +74,7 @@ SceneTitle1.prototype.onPause = function ( gl )
 //--------------------------------------------------------------------------------
 // シーンが更新されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle1.prototype.onUpdate = function ( gl, sceneManager )
+SceneTitle1.prototype.onUpdate = function ( gl, app )
 {
 	this.rad += 0.01;
 
@@ -83,7 +83,7 @@ SceneTitle1.prototype.onUpdate = function ( gl, sceneManager )
 
 	if ( --this.count == 0 )
 	{
-		sceneManager.push( new SceneTitle2() );
+		app.pushScene( new SceneTitle2() );
 	}
 };
 
@@ -91,7 +91,7 @@ SceneTitle1.prototype.onUpdate = function ( gl, sceneManager )
 //--------------------------------------------------------------------------------
 // シーンが描画されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle1.prototype.onRender = function ( gl )
+SceneTitle1.prototype.onRender = function ( gl, app )
 {
 	var matPool = this.mat4Pool;
 	matPool.reset();

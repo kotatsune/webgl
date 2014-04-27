@@ -1,6 +1,6 @@
 //================================================================================
 //
-//    app.js
+//    App.js
 //
 //================================================================================
 
@@ -64,7 +64,8 @@ App.prototype.initialize = function ( gl )
 	this.setupGl( gl );
 
 	this.sceneManager = new SceneManager();
-	this.sceneManager.push( new SceneTitle1() );
+
+	this.pushScene( new SceneTitle1() );  // 最初のシーンをプッシュします。
 };
 
 
@@ -73,10 +74,37 @@ App.prototype.initialize = function ( gl )
 //--------------------------------------------------------------------------------
 App.prototype.finalize = function ( gl )
 {
-	this.sceneManager.finalize();
+	this.sceneManager.finalize( gl, this );
 
 	this.tearDownGl( gl );
 };
+
+
+//--------------------------------------------------------------------------------
+// シーンをプッシュします。
+//--------------------------------------------------------------------------------
+App.prototype.pushScene = function ( scene )
+{
+	this.sceneManager.pushScene( scene );
+}
+
+
+//--------------------------------------------------------------------------------
+// シーンをポップします。
+//--------------------------------------------------------------------------------
+App.prototype.popScene = function ()
+{
+	this.sceneManager.popScene();
+}
+
+
+//--------------------------------------------------------------------------------
+// すべてのシーンをクリアします。
+//--------------------------------------------------------------------------------
+App.prototype.clearAllScenes = function ()
+{
+	this.sceneManager.clearAllScenes();
+}
 
 
 //--------------------------------------------------------------------------------
@@ -90,7 +118,7 @@ App.prototype.loop = function ( gl )
 		gl.clearDepth( 1.0 );
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
-		this.sceneManager.control( gl );
+		this.sceneManager.process( gl, this );
 
 		gl.flush();
 	

@@ -12,14 +12,14 @@ var GLUT = {};
 
 
 //--------------------------------------------------------------------------------
-// ’è”
+// å®šæ•°
 //--------------------------------------------------------------------------------
 GLUT.SCRIPT_TYPE_VERTEX_SHADER = "x-shader/x-vertex";
 GLUT.SCRIPT_TYPE_FRAGMENT_SHADER = "x-shader/x-fragment";
 
 
 //--------------------------------------------------------------------------------
-// ƒVƒF[ƒ_[‚ğì¬‚µ‚Ü‚·B
+// ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã‚’ä½œæˆã—ã¾ã™ã€‚
 //--------------------------------------------------------------------------------
 GLUT.createShader = function ( gl, id )
 {
@@ -67,7 +67,7 @@ GLUT.createShader = function ( gl, id )
 
 
 //--------------------------------------------------------------------------------
-// ƒVƒF[ƒ_[‚ğíœ‚µ‚Ü‚·B
+// ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã‚’å‰Šé™¤ã—ã¾ã™ã€‚
 //--------------------------------------------------------------------------------
 GLUT.deleteShader = function ( gl, shader )
 {
@@ -76,7 +76,7 @@ GLUT.deleteShader = function ( gl, shader )
 
 
 //--------------------------------------------------------------------------------
-// ƒvƒƒOƒ‰ƒ€‚ğì¬‚µ‚Ü‚·B
+// ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚’ä½œæˆã—ã¾ã™ã€‚
 //--------------------------------------------------------------------------------
 GLUT.createProgram = function ( gl, vertexShader, fragmentShader )
 {
@@ -101,7 +101,7 @@ GLUT.createProgram = function ( gl, vertexShader, fragmentShader )
 
 
 //--------------------------------------------------------------------------------
-// ƒvƒƒOƒ‰ƒ€‚ğíœ‚µ‚Ü‚·B
+// ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚’å‰Šé™¤ã—ã¾ã™ã€‚
 //--------------------------------------------------------------------------------
 GLUT.deleteProgram = function ( gl, program )
 {
@@ -110,11 +110,11 @@ GLUT.deleteProgram = function ( gl, program )
 
 
 //--------------------------------------------------------------------------------
-// ’¸“_ƒoƒbƒtƒ@‚ğì¬‚µ‚Ü‚·B
+// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆã—ã¾ã™ã€‚
 //--------------------------------------------------------------------------------
 GLUT.createVertexBuffer = function ( gl, data )
 {
-	// gl.ARRAY_BUFFER ‚Æ gl.ELEMENT_ARRAY_BUFFER ‚Ìˆá‚¢‚É’ˆÓ!!
+	// gl.ARRAY_BUFFER ã¨ gl.ELEMENT_ARRAY_BUFFER ã®é•ã„ã«æ³¨æ„!!
 	var vertexBuffer = gl.createBuffer();
 	gl.bindBuffer( gl.ARRAY_BUFFER, vertexBuffer );
 	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( data ), gl.STATIC_DRAW );
@@ -125,7 +125,7 @@ GLUT.createVertexBuffer = function ( gl, data )
 
 
 //--------------------------------------------------------------------------------
-// ’¸“_ƒoƒbƒtƒ@‚ğíœ‚µ‚Ü‚·B
+// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã‚’å‰Šé™¤ã—ã¾ã™ã€‚
 //--------------------------------------------------------------------------------
 GLUT.deleteVertexBuffer = function ( gl, vertexBuffer )
 {
@@ -134,11 +134,11 @@ GLUT.deleteVertexBuffer = function ( gl, vertexBuffer )
 
 
 //--------------------------------------------------------------------------------
-// ƒCƒ“ƒfƒbƒNƒX ƒoƒbƒtƒ@‚ğì¬‚µ‚Ü‚·B
+// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ ãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆã—ã¾ã™ã€‚
 //--------------------------------------------------------------------------------
 GLUT.createIndexBuffer = function ( gl, data )
 {
-	// gl.ARRAY_BUFFER ‚Æ gl.ELEMENT_ARRAY_BUFFER ‚Ìˆá‚¢‚É’ˆÓ!!
+	// gl.ARRAY_BUFFER ã¨ gl.ELEMENT_ARRAY_BUFFER ã®é•ã„ã«æ³¨æ„!!
 	var indexBuffer = gl.createBuffer();
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, indexBuffer );
 	gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Int16Array( data ), gl.STATIC_DRAW );
@@ -149,7 +149,7 @@ GLUT.createIndexBuffer = function ( gl, data )
 
 
 //--------------------------------------------------------------------------------
-// ƒCƒ“ƒfƒbƒNƒX ƒoƒbƒtƒ@‚ğíœ‚µ‚Ü‚·B
+// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ ãƒãƒƒãƒ•ã‚¡ã‚’å‰Šé™¤ã—ã¾ã™ã€‚
 //--------------------------------------------------------------------------------
 GLUT.deleteIndexBuffer = function ( gl, indexBuffer )
 {
@@ -158,7 +158,7 @@ GLUT.deleteIndexBuffer = function ( gl, indexBuffer )
 
 
 //--------------------------------------------------------------------------------
-// ƒeƒNƒXƒ`ƒƒ‚ğì¬‚µ‚Ü‚·B
+// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ä½œæˆã—ã¾ã™ã€‚
 //--------------------------------------------------------------------------------
 GLUT.createTexture = function ( gl, name, source, callback )
 {
@@ -195,7 +195,7 @@ GLUT.createTexture = function ( gl, name, source, callback )
 
 
 //--------------------------------------------------------------------------------
-// ƒeƒNƒXƒ`ƒƒ‚ğíœ‚µ‚Ü‚·B
+// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å‰Šé™¤ã—ã¾ã™ã€‚
 //--------------------------------------------------------------------------------
 GLUT.deleteTexture = function ( gl, texture )
 {

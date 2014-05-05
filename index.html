@@ -13,16 +13,18 @@
 		<script src="./Js/Lib/3d/Model.js" type="text/javascript"></script>
 		<script src="./Js/Lib/3d/GlUtility.js" type="text/javascript"></script>
 		<script src="./Js/Lib/Misc/ObjectPool.js" type="text/javascript"></script>
+		<script src="./Js/Lib/Misc/DateTime.js" type="text/javascript"></script>
+		<script src="./Js/Lib/Misc/WindowExtension.js" type="text/javascript"></script>
 		<script src="./Js/Common.js" type="text/javascript"></script>
 		<script src="./Js/SceneManager.js" type="text/javascript"></script>
-		<script src="./Js/SceneBase.js" type="text/javascript"></script>
+		<script src="./Js/Scene.js" type="text/javascript"></script>
 		<script src="./Js/SceneTitle1.js" type="text/javascript"></script>
 		<script src="./Js/SceneTitle2.js" type="text/javascript"></script>
 		<script src="./Js/App.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			window.onload = function ()
 			{
-				var app = new App();
+				var app = new App( Common.CANVAS_ID );
 				app.run();
 			};
 		</script>
@@ -30,7 +32,7 @@
 	<body>
 		<div id="screen_container"><canvas id="screen" width="640" height="480"></canvas></div>
 
-		<!-- シェーダー --!>
+		<!-- 繧ｷ繧ｧ繝ｼ繝繝ｼ --!>
 
 		<script id="vertex-shader-1" type="x-shader/x-vertex">
 			precision mediump float;

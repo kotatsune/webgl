@@ -13,18 +13,18 @@
 //--------------------------------------------------------------------------------
 function SceneTitle2()
 {
-	//SceneBase.apply( this, arguments ); 
-	SceneBase.apply( this, [ 'Title2', true ] ); 
+	//Scene.apply( this, arguments ); 
+	Scene.apply( this, [ 'Title2' ] ); 
 }
 
-SceneTitle2.prototype = Object.create( SceneBase.prototype );
+SceneTitle2.prototype = Object.create( Scene.prototype );
 SceneTitle2.prototype.constructor = SceneTitle2;
 
 
 //--------------------------------------------------------------------------------
 // シーンが作成されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle2.prototype.onCreate = function ( gl, app )
+SceneTitle2.prototype.onCreate = function ( core, gl )
 {
 	this.mat4Pool = new Float32ArrayPool( 16 );
 	this.rad = 0.0;
@@ -45,7 +45,7 @@ SceneTitle2.prototype.onCreate = function ( gl, app )
 //--------------------------------------------------------------------------------
 // シーンが破棄されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle2.prototype.onDestroy = function ( gl, app )
+SceneTitle2.prototype.onDestroy = function ( core, gl )
 {
 	GLUT.deleteProgram( gl, this.program1 );
 	GLUT.deleteVertexBuffer( gl, this.vertices1 );
@@ -57,7 +57,7 @@ SceneTitle2.prototype.onDestroy = function ( gl, app )
 //--------------------------------------------------------------------------------
 // シーンが再開されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle2.prototype.onResume = function ( gl, app )
+SceneTitle2.prototype.onResume = function ( core, gl )
 {
 	this.count = 100;
 };
@@ -66,7 +66,7 @@ SceneTitle2.prototype.onResume = function ( gl, app )
 //--------------------------------------------------------------------------------
 // シーンが停止されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle2.prototype.onPause = function ( gl, app )
+SceneTitle2.prototype.onPause = function ( core, gl )
 {
 };
 
@@ -74,16 +74,20 @@ SceneTitle2.prototype.onPause = function ( gl, app )
 //--------------------------------------------------------------------------------
 // シーンが更新されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle2.prototype.onUpdate = function ( gl, app )
+SceneTitle2.prototype.onUpdate = function ( core, gl )
 {
-	this.rad += 0.01;
+	var rate = core.deltaTime * 0.001;
 
-	this.t += 0.01;
+	this.rad += 0.2 * rate;
+
+	this.t += 0.01 * rate;
 	if ( this.t >= 1.0 ) { this.t = 0.0; }
 
 	if ( --this.count == 0 )
 	{
-		app.popScene();
+		this.count = 100;
+		
+		core.requestPopScene();
 	}
 };
 
@@ -91,7 +95,7 @@ SceneTitle2.prototype.onUpdate = function ( gl, app )
 //--------------------------------------------------------------------------------
 // シーンが描画されるときに呼ばれます。
 //--------------------------------------------------------------------------------
-SceneTitle2.prototype.onRender = function ( gl, app )
+SceneTitle2.prototype.onRender = function ( core, gl )
 {
 	var matPool = this.mat4Pool;
 	matPool.reset();

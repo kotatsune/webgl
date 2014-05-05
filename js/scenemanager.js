@@ -9,207 +9,229 @@
 
 
 //--------------------------------------------------------------------------------
-//  コンストラクタ
+// クラス　SceneManager
 //--------------------------------------------------------------------------------
-function SceneManager ()
+function SceneManager ( core, gl )
 {
-	this.sceneStack = [];
-	this.commandStack = [];
+	// 定数
+	var REQUEST_TYPE_NONE             = 0;
+	var REQUEST_TYPE_PUSH_SCENE       = 1;
+	var REQUEST_TYPE_POP_SCENE        = 2;
+	var REQUEST_TYPE_CLEAR_ALL_SCENES = 3;
+
+
+	// リクエスト スタック
+	var m_requestStack = [];
+
+	// シーン　スタック
+	var m_sceneStack = [];
+
+	// コア
+	var m_core = core;
+
+	// WebGL
+	var m_gl = gl;
+
+
+	//--------------------------------------------------------------------------------
+	// シーン マネージャーの後片付けを行います。
+	//--------------------------------------------------------------------------------
+	this.finalize = function ()
+	{
+		clearAllScenes();
+
+		m_core = null;
+		m_gl = null;
+	};
+
+
+	//--------------------------------------------------------------------------------
+	// シーンのプッシュをリクエストします。
+	//--------------------------------------------------------------------------------
+	this.requestPushScene = function ( scene, cooperative )
+	{
+		if ( !scene )
+		{
+			alert( 'Scene is invalid.' );
+
+			return;
+		}
+
+		var request = { 'type' : REQUEST_TYPE_PUSH_SCENE, 'scene' : scene, 'cooperative' : cooperative };
+		
+		m_requestStack.push( request );
+		//Array.prototype.push.apply( m_requestStack, [ request ] );  // 大量の配列を連結する場合は、こっちの方が高速らしい。
+	};
+
+
+	//--------------------------------------------------------------------------------
+	// シーンのポップをリクエストします。
+	//--------------------------------------------------------------------------------
+	this.requestPopScene = function ()
+	{
+		var request = { 'type' : REQUEST_TYPE_POP_SCENE };
+
+		m_requestStack.push( request );
+	};
+
+
+	//--------------------------------------------------------------------------------
+	// すべてのシーンのクリアをリクエストします。
+	//--------------------------------------------------------------------------------
+	this.requestClearAllScenes = function ()
+	{
+		var request = { 'type' : REQUEST_TYPE_CLEAR_ALL_SCENES };
+
+		m_requestStack.push( request );
+	};
+
+
+	//--------------------------------------------------------------------------------
+	// 実際に、シーンをプッシュします。
+	//--------------------------------------------------------------------------------
+	var pushScene = function ( nextScene, cooperative )
+	{
+		if ( nextScene )
+		{
+			if ( !cooperative )
+			{
+				var currentScene = peekTopScene();
+				if ( currentScene && currentScene.isActive() )
+				{
+					currentScene.activate( false );
+					currentScene.onPause( m_core, m_gl );
+				}
+			}
+
+			nextScene.onCreate( m_core, m_gl );
+			nextScene.onResume( m_core, m_gl );
+			nextScene.activate( true );
+		
+			m_sceneStack.push( nextScene );
+		}
+	};
+
+
+	//--------------------------------------------------------------------------------
+	// 実際に、シーンをポップします。
+	//--------------------------------------------------------------------------------
+	var popScene = function ()
+	{
+		var currentScene = m_sceneStack.pop();
+		if ( currentScene )
+		{
+			currentScene.activate( false );
+			currentScene.onPause( m_core, m_gl );
+			currentScene.onDestroy( m_core, m_gl );
+
+			var nextScene = peekTopScene();
+			if ( nextScene && !nextScene.isActive() )
+			{
+				nextScene.onResume( m_core, m_gl );
+				nextScene.activate( true );
+			}
+		}
+	};
+
+
+	//--------------------------------------------------------------------------------
+	// 実際に、すべてのシーンをクリアします。
+	//--------------------------------------------------------------------------------
+	var clearAllScenes = function ()
+	{
+		var scene = undefined;
+		while ( scene = m_sceneStack.pop() )
+		{
+			scene.activate( false );
+			scene.onPause( m_core, m_gl );
+			scene.onDestroy( m_core, m_gl );
+		}
+	};
+
+
+	//--------------------------------------------------------------------------------
+	// 最上位のシーンを参照します。
+	//--------------------------------------------------------------------------------
+	var peekTopScene = function ()
+	{
+		if ( m_sceneStack.length > 0 )
+		{
+			return m_sceneStack[ m_sceneStack.length - 1 ];
+		}
+
+		return undefined;
+	};
+
+
+	//--------------------------------------------------------------------------------
+	// リクエストを処理します。
+	//--------------------------------------------------------------------------------
+	var processRequests = function ()
+	{
+		var request = undefined;
+		while ( request = m_requestStack.pop() )
+		{
+			switch ( request.type )
+			{
+				case REQUEST_TYPE_PUSH_SCENE :
+					pushScene( request.scene, request.cooperative );
+					break;
+
+				case REQUEST_TYPE_POP_SCENE :
+					popScene();
+					break;
+
+				case REQUEST_TYPE_CLEAR_ALL_SCENES :
+					clearAllScenes();
+					break;
+
+				case REQUEST_TYPE_NONE :
+				default :
+					break;
+			}
+		}
+	};
+
+
+	//--------------------------------------------------------------------------------
+	// シーンを処理します。
+	//--------------------------------------------------------------------------------
+	var processScenes = function ()
+	{
+		var startSceneIndex = m_sceneStack.length;
+		var endSceneIndex = m_sceneStack.length - 1;
+
+		for ( var i = endSceneIndex; i >= 0; --i )
+		{
+			if ( !m_sceneStack[ i ].isActive() )
+			{
+				break;
+			}
+
+			startSceneIndex = i;
+		}
+
+		for ( var j = startSceneIndex; j <= endSceneIndex; ++j )
+		{
+			var scene = m_sceneStack[ j ];
+			scene.onUpdate( m_core, m_gl );
+			scene.onRender( m_core, m_gl );
+		}
+	};
+
+
+	//--------------------------------------------------------------------------------
+	// シーンを制御します。
+	//--------------------------------------------------------------------------------
+	this.process = function ()
+	{
+		m_gl.clearColor( 0.1, 0.1, 0.1, 1.0 );
+		m_gl.clearDepth( 1.0 );
+		m_gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+
+		processRequests();
+		processScenes();
+
+		m_gl.flush();
+	};
 }
-
-
-//--------------------------------------------------------------------------------
-// 定数
-//--------------------------------------------------------------------------------
-SceneManager.COMMAND_TYPE_NONE             = 0;
-SceneManager.COMMAND_TYPE_PUSH_SCENE       = 1;
-SceneManager.COMMAND_TYPE_POP_SCENE        = 2;
-SceneManager.COMMAND_TYPE_CLEAR_ALL_SCENES = 3;
-
-
-//--------------------------------------------------------------------------------
-// シーン マネージャーの後片付けを行います。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.finalize = function ( gl, app )
-{
-	this.onClearAllScenes( gl, app );
-};
-
-
-//--------------------------------------------------------------------------------
-// 現在のシーンを取得します。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.getCurrentScene = function ()
-{
-	var sceneStack = this.sceneStack;
-	if ( sceneStack.length > 0 )
-	{
-		return sceneStack[ sceneStack.length - 1 ];
-	}
-
-	return null;
-};
-
-
-//--------------------------------------------------------------------------------
-// シーンをプッシュします。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.pushScene = function ( scene )
-{
-	if ( !scene )
-	{
-		alert( 'Scene is invalid.' );
-	}
-	
-	this.commandStack.push( { 'type' : SceneManager.COMMAND_TYPE_PUSH_SCENE, 'scene' : scene } );
-	//Array.prototype.push.apply( this.commandStack, [ { 'type' : SceneManager.COMMAND_TYPE_PUSH, 'scene' : scene } ] );
-};
-
-
-//--------------------------------------------------------------------------------
-// シーンをポップします。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.popScene = function ()
-{
-	this.commandStack.push( { 'type' : SceneManager.COMMAND_TYPE_POP_SCENE } );
-};
-
-
-//--------------------------------------------------------------------------------
-// すべてのシーンをクリアします。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.clearAllScenes = function ()
-{
-	this.commandStack.push( { 'type' : SceneManager.COMMAND_TYPE_CLEAR_ALL_SCENES } );
-};
-
-
-//--------------------------------------------------------------------------------
-// シーンのプッシュを実行します。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.onPushScene = function ( gl, app, scene )
-{
-	var currentScene = this.getCurrentScene();
-	if ( currentScene )
-	{
-		currentScene.onPause( gl, app );
-	}
-
-	if ( scene )
-	{
-		scene.onCreate( gl, app );
-		scene.onResume( gl, app );
-	
-		this.sceneStack.push( scene );
-	}
-};
-
-
-//--------------------------------------------------------------------------------
-// シーンのポップを実行します。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.onPopScene = function ( gl, app )
-{
-	var currentScene = this.getCurrentScene();
-	if ( currentScene )
-	{
-		currentScene.onPause( gl, app );
-		currentScene.onDestroy( gl, app );
-
-		this.sceneStack.pop();
-	}
-
-	var scene = this.getCurrentScene();
-	if ( scene )
-	{
-		scene.onResume( gl, app );
-	}
-};
-
-
-//--------------------------------------------------------------------------------
-// すべてのシーンのクリアを実行します。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.onClearAllScenes = function ( gl, app )
-{
-	var sceneStack = this.sceneStack;
-	while ( sceneStack.length > 0 )
-	{
-		var scene = sceneStack.pop();
-		scene.onPause( gl, app );
-		scene.onDestroy( gl, app );
-	}
-};
-
-
-
-//--------------------------------------------------------------------------------
-// コマンドを処理します。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.processCommands = function ( gl, app )
-{
-	var commandStack = this.commandStack;
-	while ( commandStack.length > 0 )
-	{
-		var command = commandStack.pop();
-		switch ( command.type )
-		{
-			case SceneManager.COMMAND_TYPE_PUSH_SCENE :
-				this.onPushScene( gl, app, command.scene );
-				break;
-
-			case SceneManager.COMMAND_TYPE_POP_SCENE :
-				this.onPopScene( gl, app );
-				break;
-
-			case SceneManager.COMMAND_TYPE_CLEAR_ALL_SCENES :
-				this.onClearAllScenes( gl, app );
-				break;
-
-			case SceneManager.COMMAND_TYPE_NONE :
-			default :
-				break;
-		}
-	}
-};
-
-
-//--------------------------------------------------------------------------------
-// シーンを処理します。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.processScenes = function ( gl, app )
-{
-	var sceneStack = this.sceneStack;
-
-	var endSceneIndex = sceneStack.length - 1;
-	var startSceneIndex = endSceneIndex;
-	while ( startSceneIndex > 0 )
-	{
-		if ( sceneStack[ startSceneIndex ].isOverlay() )
-		{
-			--startSceneIndex;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	for ( var sceneIndex = startSceneIndex; sceneIndex <= endSceneIndex; ++sceneIndex )
-	{
-		var scene = sceneStack[ sceneIndex ];
-		scene.onUpdate( gl, app );
-		scene.onRender( gl, app );
-	}
-};
-
-
-//--------------------------------------------------------------------------------
-// シーンを制御します。
-//--------------------------------------------------------------------------------
-SceneManager.prototype.process = function ( gl, app )
-{
-	this.processCommands( gl, app );
-	this.processScenes( gl, app );
-};
-
